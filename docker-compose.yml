@@ -4,6 +4,32 @@ networks:
     external: true
 
 services:
+  # WireGuard VPN server
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: tunnel-stack-wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      PUID: '${WIREGUARD_PUID:-1000}'
+      PGID: '${WIREGUARD_PGID:-1000}'
+      TZ: '${WIREGUARD_TZ:-Europe/Amsterdam}'
+      SERVERURL: '${WIREGUARD_SERVERURL:-your.domain.com}'
+      SERVERPORT: '${WIREGUARD_SERVERPORT:-51820}'
+      PEERS: '${WIREGUARD_PEERS:-1}'
+      PEERDNS: '${WIREGUARD_PEERDNS:-auto}'
+    volumes:
+      - ./docker/wireguard:/config
+    ports:
+      - '51820:51820/udp'
+    restart: unless-stopped
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
+
+  # Dante SOCKS proxy
   dante:
     container_name: tunnel-stack-dante
     image: wernight/dante
