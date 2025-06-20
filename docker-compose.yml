@@ -1,0 +1,14 @@
+networks:
+  default:
+    name: ${DOCKER_NETWORK:-tunnel-stack-network}
+    external: true
+
+services:
+  dante:
+    container_name: tunnel-stack-dante
+    image: wernight/dante
+    ports:
+        - '${DANTE_PORT:-1080}:1080'
+    restart: unless-stopped
+    volumes:
+        - ./docker/dante/sockd.conf:/etc/sockd.conf
