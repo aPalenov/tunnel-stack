@@ -1,0 +1,4 @@
+# Each line: allow * <IP-or-CIDR>
+# Migrated from Dante config
+allow * 91.244.252.234
+allow * 92.255.195.22

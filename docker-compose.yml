@@ -4,37 +4,33 @@ networks:
     external: true
 
 services:
-  # WireGuard VPN server
-  wireguard:
-    image: linuxserver/wireguard
-    container_name: tunnel-stack-wireguard
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    environment:
-      PUID: '${WIREGUARD_PUID:-1000}'
-      PGID: '${WIREGUARD_PGID:-1000}'
-      TZ: '${WIREGUARD_TZ:-Europe/Amsterdam}'
-      SERVERURL: '${WIREGUARD_SERVERURL:-your.domain.com}'
-      SERVERPORT: '${WIREGUARD_SERVERPORT:-51820}'
-      PEERS: '${WIREGUARD_PEERS:-1}'
-      PEERDNS: '${WIREGUARD_PEERDNS:-auto}'
-    volumes:
-      - ./docker/wireguard:/config
-    ports:
-      - '51820:51820/udp'
+  # 3proxy: HTTP (3128) + SOCKS5 (1080)
+  threeproxy:
+    container_name: tunnel-stack-3proxy
+    image: 3proxy/3proxy:latest
+    command: ["3proxy", "/etc/3proxy/3proxy.cfg"]
     restart: unless-stopped
-    sysctls:
-      - net.ipv4.conf.all.src_valid_mark=1
-      - net.ipv4.ip_forward=1
-      - net.ipv6.conf.all.forwarding=1
+    ports:
+      - '${HTTP_PROXY_PORT:-3128}:3128/tcp'   # HTTP proxy
+      - '${SOCKS_PROXY_PORT:-1080}:1080/tcp'  # SOCKS5 TCP
+      - '${SOCKS_PROXY_PORT:-1080}:1080/udp'  # SOCKS5 UDP associate
+    volumes:
+      - ./docker/3proxy/3proxy.cfg:/etc/3proxy/3proxy.cfg:ro
+      - ./docker/3proxy/allow.list:/data/allow.list:rw
 
-  # Dante SOCKS proxy
-  dante:
-    container_name: tunnel-stack-dante
-    image: wernight/dante
-    ports:
-        - '${DANTE_PORT:-1080}:1080'
+  allowlist-ui:
+    container_name: tunnel-stack-allowlist-ui
+    build: ./docker/allowlist-ui
     restart: unless-stopped
+    environment:
+      - ALLOWLIST_FILE=/data/allow.list
+      - TARGET_CONTAINER_NAME=tunnel-stack-3proxy
+      - BASIC_AUTH_USER=${ALLOWLIST_UI_USER:-admin}
+      - BASIC_AUTH_PASS=${ALLOWLIST_UI_PASS:-change-me}
+    ports:
+      - '${ALLOWLIST_UI_PORT:-8080}:8080'
     volumes:
-        - ./docker/dante/sockd.conf:/etc/sockd.conf
+      - ./docker/3proxy/allow.list:/data/allow.list:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+
+volumes: {}
