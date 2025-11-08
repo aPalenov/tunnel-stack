@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tunnel Stack Servers</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="options.js"></script>
+    <style>
+      body {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Servers</h2>
+    <p class="small">
+      Configure multiple server profiles for Allowlist. Credentials are stored in extension local
+      storage (avoid production use without stronger security).
+    </p>
+    <form id="addServerForm" class="inline">
+      <input type="text" name="id" placeholder="ID" required />
+      <input type="text" name="name" placeholder="Name" required />
+      <input
+        type="text"
+        name="allowlistBase"
+        placeholder="Allowlist Base URL"
+        value="http://localhost:8080"
+        required
+      />
+      <input type="text" name="user" placeholder="User" value="admin" />
+      <input type="text" name="pass" placeholder="Pass" value="eufFThdD338" />
+      <button type="submit">Add / Update</button>
+    </form>
+    <div id="serversMsg" class="small"></div>
+    <table class="table" id="serversTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Allowlist</th>
+          <th>User</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="separator"></div>
+    <h2>Global PAC Settings</h2>
+    <p class="small">PAC service is configured once and used regardless of selected server.</p>
+    <form id="pacConfigForm" class="inline">
+      <input
+        type="text"
+        name="base"
+        placeholder="PAC Base URL"
+        value="http://localhost:3000"
+        required
+      />
+      <input type="text" name="user" placeholder="User" value="admin" />
+      <input type="text" name="pass" placeholder="Pass" value="eufFThdD338" />
+      <button type="submit">Save PAC</button>
+    </form>
+    <div id="pacMsg" class="small"></div>
+  </body>
+</html>

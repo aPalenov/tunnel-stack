@@ -1,0 +1,11 @@
+*.yml
+/.git
+/.github
+/.vscode
+_ide_helper.php
+.phpstorm.meta.php
+.eslintrc
+composer.lock
+package-lock.json
+package.json
+README.md

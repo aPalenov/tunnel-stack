@@ -33,4 +33,19 @@ services:
       - ./docker/3proxy/allow.list:/data/allow.list:rw
       - /var/run/docker.sock:/var/run/docker.sock:rw
 
+  pac-service:
+    container_name: tunnel-stack-pac-service
+    build: ./docker/pac-service
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - DB_FILE=/app/data/db.json
+      - BASIC_AUTH_USER=${PAC_SERVICE_BASIC_AUTH_USER:-admin}
+      - BASIC_AUTH_PASS=${PAC_SERVICE_BASIC_AUTH_PASS:-change-me}
+    ports:
+      - '${PAC_SERVICE_PORT:-3000}:3000'
+    volumes:
+      # Mount the whole data directory to allow atomic writes and easy host edits
+      - ./docker/pac-service/data:/app/data:rw
+
 volumes: {}

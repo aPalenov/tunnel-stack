@@ -22,20 +22,31 @@ def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
     return True
 
-ALLOW_RE = re.compile(r"^\s*allow\s+\*\s+(?P<cidr>[^\s#]+)\s*$", re.IGNORECASE)
+# Match lines like: "allow * 1.2.3.4" or "allow * 1.2.3.0/24" (optionally with trailing comments)
+ALLOW_RE = re.compile(r"^\s*allow\s+\*\s+(?P<cidr>[^\s#]+)\s*(?:#.*)?$", re.IGNORECASE)
 
 
 def read_allowlist() -> List[str]:
+    """
+    Read existing allow entries and normalize them to canonical CIDR strings.
+    This ensures that plain IPs (e.g. 1.2.3.4) are treated as 1.2.3.4/32.
+    """
     if not os.path.exists(ALLOW_FILE):
         return []
     with open(ALLOW_FILE, "r", encoding="utf-8") as f:
         lines = f.read().splitlines()
-    cidrs = []
+    normalized: List[str] = []
     for line in lines:
         m = ALLOW_RE.match(line)
-        if m:
-            cidrs.append(m.group("cidr"))
-    return cidrs
+        if not m:
+            continue
+        raw = m.group("cidr").strip()
+        try:
+            normalized.append(validate_cidr(raw))
+        except HTTPException:
+            # Skip invalid entries silently to avoid breaking UI
+            continue
+    return normalized
 
 
 def write_allowlist(cidrs: List[str], header: str | None = None):
@@ -115,15 +126,23 @@ def add_ip(payload: dict):
     return {"ok": True, "added": normalized}
 
 
-@app.delete("/ips/{cidr}", dependencies=[Depends(check_auth)])
+@app.delete("/ips/{cidr:path}", dependencies=[Depends(check_auth)])
 def delete_ip(cidr: str):
+    # Try to normalize; accept plain IPs too
     normalized = validate_cidr(cidr)
     items = set(read_allowlist())
-    if normalized not in items:
-        raise HTTPException(status_code=404, detail="Not found")
-    items.remove(normalized)
+    # Prefer removing normalized entry; if not present, attempt raw fallback
+    if normalized in items:
+        items.remove(normalized)
+        removed = normalized
+    elif cidr in items:
+        items.remove(cidr)
+        removed = cidr
+    else:
+        # Unified message for consistency
+        raise HTTPException(status_code=404, detail="Not Found")
     write_allowlist(sorted(items), header=read_header())
-    return {"ok": True, "deleted": normalized}
+    return {"ok": True, "deleted": removed}
 
 
 @app.post("/apply", dependencies=[Depends(check_auth)])

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tunnel Stack</title>
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="popup.js"></script>
+    <style>
+      body {
+        min-width: 640px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Tunnel Stack</strong>
+      <select id="serverSelect"></select>
+      <button id="openOptions" class="secondary" title="Manage servers">Servers</button>
+      <button id="refreshAllBtn" class="secondary" title="Reload data">Refresh</button>
+      <span id="healthStatus" class="small"></span>
+    </header>
+    <div class="tabs">
+      <button data-tab="allowlist" class="active">Allowlist</button>
+      <button data-tab="pac">PAC Service</button>
+    </div>
+    <main>
+      <section id="allowlist" class="section active">
+        <h3>Allowlist IPs</h3>
+        <form id="addIpForm" class="inline">
+          <input id="ipInput" type="text" placeholder="IP or CIDR" required />
+          <button type="submit">Add</button>
+          <button type="button" id="applyBtn" class="secondary" title="Restart 3proxy">
+            Apply changes
+          </button>
+        </form>
+        <div id="allowlistMsg" class="small"></div>
+        <table class="table" id="allowlistTable">
+          <thead>
+            <tr>
+              <th>IP/CIDR</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+      <section id="pac" class="section">
+        <h3>Proxies</h3>
+        <form id="createProxyForm" class="inline">
+          <input type="text" name="proto" placeholder="SOCKS/PROXY" value="SOCKS" required />
+          <input type="text" name="host" placeholder="Host" required />
+          <input type="number" name="port" placeholder="Port" value="1080" required />
+          <button type="submit">Add Proxy</button>
+        </form>
+        <div id="proxyMsg" class="small"></div>
+        <table class="table" id="proxiesTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Proto</th>
+              <th>Host</th>
+              <th>Port</th>
+              <th>Domains</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="separator"></div>
+        <h3>PAC Preview</h3>
+        <button id="reloadPac" class="secondary">Reload PAC</button>
+        <div
+          class="inline"
+          style="margin-top: 6px; gap: 4px; display: flex; flex-wrap: wrap; align-items: center"
+        >
+          <input
+            type="text"
+            id="pacUrlInput"
+            placeholder="PAC URL (override)"
+            style="flex: 1; min-width: 240px"
+          />
+          <button id="btnSetPac" class="secondary" title="Set system PAC URL via native host">
+            Set System PAC
+          </button>
+          <button id="btnSetPacForce" class="secondary" title="Set system PAC URL with ?force=1">
+            Force PAC
+          </button>
+          <span id="nativeMsg" class="small" style="min-width: 160px"></span>
+        </div>
+        <pre id="pacContent" class="small"></pre>
+      </section>
+    </main>
+  </body>
+</html>

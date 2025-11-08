@@ -1,0 +1,21 @@
+{
+  "name": "pac-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Simple PAC generator service with JSON file storage for proxies and domain lists.",
+  "type": "module",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "NODE_ENV=development node src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "morgan": "^1.10.0",
+    "nanoid": "^5.0.7"
+  }
+}
