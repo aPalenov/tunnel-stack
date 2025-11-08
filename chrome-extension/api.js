@@ -141,19 +141,11 @@ export class ServerRegistry {
     return servers.find((s) => s.id === activeId) || servers[0] || null
   }
   static async ensureDefault() {
+    // Do NOT create any hardcoded default server.
+    // If there are servers configured but no active is selected, set the first as active.
     const servers = await this.getAll()
-    if (!servers.length) {
-      const def = {
-        id: 'local',
-        name: 'Localhost',
-        allowlistBase: 'http://localhost:8080',
-        auth: { user: 'admin', pass: 'eufFThdD338' },
-      }
-      await this.saveAll([def])
-      await this.setActiveId(def.id)
-      return def
-    }
-    if (!(await this.getActiveId())) {
+    const activeId = await this.getActiveId()
+    if (servers.length && !activeId) {
       await this.setActiveId(servers[0].id)
     }
     return this.getActive()

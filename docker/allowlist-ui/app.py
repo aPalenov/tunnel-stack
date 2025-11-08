@@ -5,6 +5,7 @@ import docker
 from typing import List
 from ipaddress import ip_network
 from fastapi import FastAPI, HTTPException, Depends, status, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
@@ -16,6 +17,17 @@ BASIC_PASS = os.environ.get("BASIC_AUTH_PASS", "change-me")
 
 security = HTTPBasic()
 app = FastAPI(title=APP_TITLE)
+
+# CORS: always allow any origin, no credentials (simple and works with Basic Auth headers)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["Authorization", "Content-Type"],
+    expose_headers=["Content-Type"],
+    max_age=3600,
+)
 
 def check_auth(credentials: HTTPBasicCredentials = Depends(security)):
     if credentials.username != BASIC_USER or credentials.password != BASIC_PASS:

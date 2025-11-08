@@ -49,6 +49,11 @@ async function initServers() {
     await refreshAll()
   }
   const active = await ServerRegistry.ensureDefault()
+  if (!active) {
+    clients = null
+    healthStatus.textContent = 'No server configured'
+    return
+  }
   clients = await makeClientsGlobalPac(active)
 }
 
@@ -315,6 +320,14 @@ async function loadPac() {
 
 async function refreshAll() {
   const active = await ServerRegistry.getActive()
+  if (!active) {
+    clients = null
+    healthStatus.textContent = 'No server configured'
+    allowlistTableBody.innerHTML = ''
+    proxiesTableBody.innerHTML = ''
+    pacContent.textContent = ''
+    return
+  }
   clients = await makeClientsGlobalPac(active)
   await updatePacUrlInputFromConfig()
   await Promise.all([refreshHealth(), loadAllowlist(), loadProxies(), loadPac()])

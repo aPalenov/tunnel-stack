@@ -10,7 +10,7 @@ A Chrome extension to manage your 3proxy allowlist (Python mini-API) across mult
 - Local storage for configs (no cloud sync)
 
 ## Load in Chrome
-1. Build/run your stack so the services are reachable (default: allowlist `http://localhost:8080`, pac `http://localhost:3000`).
+1. Build/run your stack so the services are reachable (example: allowlist `http://localhost:8080`, pac `http://localhost:3000`). You can now configure any Allowlist base URL; it's no longer hardcoded.
 2. Open chrome://extensions, enable Developer mode.
 3. Click "Load unpacked" and select this folder `chrome-extension`.
 
